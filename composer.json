@@ -28,6 +28,9 @@
   "autoload": {
       "psr-4": {
           "TymFrontiers\\Helper\\": "src/"
-      }
+      },
+      "files" : [
+        "src/Helper.php"
+      ]
   }
 }
