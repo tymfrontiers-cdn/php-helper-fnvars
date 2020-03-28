@@ -1,0 +1,33 @@
+{
+  "name": "tymfrontiers-cdn/php-helper-fnvars",
+  "description": "PHP helper functions and variables",
+  "keywords": ["php", "variable","function","help","tym","frontiers"],
+  "homepage": "https://github.com/tymfrontiers-cdn/php-helper-fnvars",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "Sir Louis",
+          "email": "me@sirlouis.io",
+          "homepage": "https://sirlouis.io",
+          "role": "developer"
+      },
+      {
+          "name": "Tym Frontiers Ltd",
+          "email": "git@tymfrontiers.com",
+          "homepage": "https://tymfrontiers.com",
+          "role": "developer"
+      }
+  ],
+  "require": {
+    "php" : ">=5.3",
+    "tymfrontiers-cdn/php-data" : ">=0.1@stable",
+    "tymfrontiers-cdn/php-generic" : ">=0.1@stable"
+  },
+  "require-dev": {},
+  "autoload": {
+      "psr-4": {
+          "TymFrontiers\\Helper\\": "src/"
+      }
+  }
+}
