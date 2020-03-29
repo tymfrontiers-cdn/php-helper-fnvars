@@ -30,7 +30,9 @@
           "TymFrontiers\\Helper\\": "src/"
       },
       "files" : [
-        "src/Helper.php"
+        "src/HelperFn.php",
+        "src/HelperVars.php",
+        "src/HelperConstants.php"
       ]
   }
 }
