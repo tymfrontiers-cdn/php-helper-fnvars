@@ -1,47 +1,6 @@
 <?php
-require_once "HelperVars.php";
-// apache_request_headers
-if ( !\function_exists('apache_request_headers') ) {
-  function apache_request_headers() {
-    // Based on: http://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
-    $arrCasedHeaders = [
-      'Dasl'             => 'DASL',
-      'Dav'              => 'DAV',
-      'Etag'             => 'ETag',
-      'Mime-Version'     => 'MIME-Version',
-      'Slug'             => 'SLUG',
-      'Te'               => 'TE',
-      'Www-Authenticate' => 'WWW-Authenticate',
-      // MIME
-      'Content-Md5'      => 'Content-MD5',
-      'Content-Id'       => 'Content-ID',
-      'Content-Features' => 'Content-features'
-    ];
-    $arrHttpHeaders = [];
-
-    foreach($_SERVER as $strKey => $mixValue) {
-      if('HTTP_' === \substr($strKey, 0, 5)) {
-        $strHeaderKey = \strtolower(\substr($strKey, 5));
-        $arrHeaderKey = \explode('_', $strHeaderKey);
-
-        if(0 < count($arrHeaderKey)) {
-          $arrHeaderKey = \array_map('ucfirst', $arrHeaderKey);
-          $strHeaderKey = \implode('-', $arrHeaderKey);
-        } else {
-          $strHeaderKey = \ucfirst($strHeaderKey);
-        }
-
-        if( \array_key_exists($strHeaderKey, $arrCasedHeaders)) {
-          $strHeaderKey = $arrCasedHeaders[$strHeaderKey];
-        }
-
-        $arrHttpHeaders[$strHeaderKey] = $mixValue;
-      }
-    }
-    return $arrHttpHeaders;
-  }
-}
 namespace TymFrontiers\Helper {
+  require_once "HelperVars.php";
   // Admin settings conf
   function setting_variant (string $regex){
     $output = [
@@ -129,5 +88,49 @@ namespace TymFrontiers\Helper {
     $set .=   "data-stick-on='{$dnav_stick_on}' ";
     $set .= ">";
     echo $set;
+  }
+}
+
+// apache_request_headers
+namespace {
+  if ( !\function_exists('apache_request_headers') ) {
+    function apache_request_headers() {
+      // Based on: http://www.iana.org/assignments/message-headers/message-headers.xml#perm-headers
+      $arrCasedHeaders = [
+        'Dasl'             => 'DASL',
+        'Dav'              => 'DAV',
+        'Etag'             => 'ETag',
+        'Mime-Version'     => 'MIME-Version',
+        'Slug'             => 'SLUG',
+        'Te'               => 'TE',
+        'Www-Authenticate' => 'WWW-Authenticate',
+        // MIME
+        'Content-Md5'      => 'Content-MD5',
+        'Content-Id'       => 'Content-ID',
+        'Content-Features' => 'Content-features'
+      ];
+      $arrHttpHeaders = [];
+
+      foreach($_SERVER as $strKey => $mixValue) {
+        if('HTTP_' === \substr($strKey, 0, 5)) {
+          $strHeaderKey = \strtolower(\substr($strKey, 5));
+          $arrHeaderKey = \explode('_', $strHeaderKey);
+
+          if(0 < count($arrHeaderKey)) {
+            $arrHeaderKey = \array_map('ucfirst', $arrHeaderKey);
+            $strHeaderKey = \implode('-', $arrHeaderKey);
+          } else {
+            $strHeaderKey = \ucfirst($strHeaderKey);
+          }
+
+          if( \array_key_exists($strHeaderKey, $arrCasedHeaders)) {
+            $strHeaderKey = $arrCasedHeaders[$strHeaderKey];
+          }
+
+          $arrHttpHeaders[$strHeaderKey] = $mixValue;
+        }
+      }
+      return $arrHttpHeaders;
+    }
   }
 }
