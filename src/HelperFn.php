@@ -4,12 +4,9 @@ namespace TymFrontiers\Helper {
   // Admin settings conf
   function setting_variant (string $regex){
     $output = [
-      "minlen" => 0,
-      "maxlen" => 0,
+      "optiontype" => "", // "radio", "checkbox"
       "minval" => 0,
       "maxval" => 0,
-      "mindate" => 0,
-      "maxdate" => 0,
       "options" => [],
     ];
     $regex = \explode("-;", $regex);
@@ -28,7 +25,12 @@ namespace TymFrontiers\Helper {
     }
     return $output;
   }
-
+  function setting_get_value (string $user, string $key, string $db = MYSQL_ADMIN_DB) {
+    global $database;
+    $found = (new \TymFrontiers\MultiForm($db, "setting", "id"))
+      ->findBySql("SELECT sval FROM :db:.:tbl: WHERE user='{$database->escapeValue($user)}' AND skey='{$database->escapeValue($key)}' LIMIT 1");
+    return $found ? $found[0]->sval : null;
+  }
   function email_mask ( string $email, string $mask_char="*", int $percent=50 ){
     list( $user, $domain ) = \preg_split("/@/", $email );
     $len = \strlen( $user );
