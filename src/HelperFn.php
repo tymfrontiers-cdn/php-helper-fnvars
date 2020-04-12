@@ -25,9 +25,11 @@ namespace TymFrontiers\Helper {
     }
     return $output;
   }
-  function setting_get_value (string $user, string $key, string $db = MYSQL_ADMIN_DB) {
+  function setting_get_value (string $user, string $key) {
+    if (!\defined("MYSQL_BASE_DB")) throw new \Exception("Database for settings [MYSQL_BASE_DB] not defined.", 1);
+
     global $database;
-    $found = (new \TymFrontiers\MultiForm($db, "setting", "id"))
+    $found = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))
       ->findBySql("SELECT sval FROM :db:.:tbl: WHERE user='{$database->escapeValue($user)}' AND skey='{$database->escapeValue($key)}' LIMIT 1");
     return $found ? $found[0]->sval : null;
   }
