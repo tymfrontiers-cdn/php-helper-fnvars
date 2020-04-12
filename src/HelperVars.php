@@ -1,7 +1,7 @@
 <?php
 // Helper viariables
 $access_ranks = [
-  "QUEST"       => 0,
+  "GUEST"       => 0,
   "USER"        => 1,
   "ANALYST"     => 2,
   "ADVERTISER"  => 3,
@@ -13,7 +13,7 @@ $access_ranks = [
   "OWNER"       => 14
 ];
 $reverse_access_ranks = [
-  0 => "QUEST",
+  0 => "GUEST",
   1 => "USER",
   2 => "ANALYST",
   3 => "ADVERTISER",
