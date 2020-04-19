@@ -25,13 +25,78 @@ namespace TymFrontiers\Helper {
     }
     return $output;
   }
-  function setting_get_value (string $user, string $key) {
+  function setting_get_value (string $user, string $key, string $domain = PRJ_DOMAIN) {
+    global $database;
+    $user = $database->escapeValue("{$domain}\\{$user}");
     if (!\defined("MYSQL_BASE_DB")) throw new \Exception("Database for settings [MYSQL_BASE_DB] not defined.", 1);
 
     global $database;
     $found = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))
       ->findBySql("SELECT sval FROM :db:.:tbl: WHERE user='{$database->escapeValue($user)}' AND skey='{$database->escapeValue($key)}' LIMIT 1");
     return $found ? $found[0]->sval : null;
+  }
+  function setting_set_value (string $user, string $key, $value, string $domain = PRJ_DOMAIN) {
+    global $database;
+    $key = $database->escapeValue($key);
+    if (!\defined("MYSQL_BASE_DB")) throw new \Exception("Database for settings [MYSQL_BASE_DB] not defined.", 1);
+    $key_prop = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting_option", "id"))
+      ->findBySql("SELECT *
+                   FROM :db:.:tbl:
+                   WHERE `domain` = '{$database->escapeValue($domain)}'
+                   AND `name` = '{$key}'
+                   LIMIT 1");
+    if (!$key_prop) throw new \Exception("Setting property not found \r\n" . $database->last_query, 1);
+    $key_prop = $key_prop[0];
+    $is_new = true;
+    $find_user = "{$domain}\\\\{$user}";
+    if (!(bool)$key_prop->multi_val && $set = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `user` = '{$find_user}' AND skey='{$key}' LIMIT 1")) {
+      $set = $set[0];
+      $is_new = false;
+    } else {
+      $set = new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id");
+    }
+    // validate [value] presented
+    // get expexted value
+    $rqp = [];
+    $typev = empty($key_prop->type_variant) ? false : \TymFrontiers\Helper\setting_variant($key_prop->type_variant);
+    $filt_arr = ["value", $key_prop->type];
+    if (\in_array($key_prop->type, ["username","text","html","markdown","mixed","script","date","time","datetime","int","float"])) {
+      $filt_arr[2] = !empty($typev["minval"]) ? $typev["minval"] : 0;
+      $filt_arr[3] = !empty($typev["maxval"]) ? $typev["maxval"] : 0;
+    } if ($key_prop->type == "option" && !empty($typev["optiontype"]) && $typev["optiontype"]=="checkbox") {
+      $filt_arr[1] = "text";
+      $filt_arr[2] = 3;
+      $filt_arr[3] = 127;
+    } if ($key_prop->type == "option" && !empty($typev["optiontype"]) && $typev["optiontype"]=="radio") {
+      if (empty($typev["options"])) {
+        throw new \Exception("No pre-set options for this setting, contact Developer", 1);
+      }
+      $filt_arr[2] = $typev["options"];
+    }
+    $rqp["value"] = $filt_arr;
+    $gen = new \TymFrontiers\Generic;
+    $params = $gen->requestParam($rqp,["value" => $value], ["value"]);
+    if (!$params || !empty($gen->errors)) {
+      $errors = (new \TymFrontiers\InstanceError($gen,true))->get("requestParam",true);
+      $errors = \implode("\r\n",$errors);
+      throw new \Exception($errors, 1);
+    }
+    $value = $database->escapeValue($params['value']);
+    if (!$is_new) {
+      // run update
+      $set->sval = $value;
+    } else {
+      $set->user = "{$domain}\\{$user}";
+      $set->skey = $key;
+      $set->sval = $value;
+    }
+    if ($set->save()) {
+      return true;
+    }
+    $set->mergeErrors();
+    $errors = (new \TymFrontiers\InstanceError($set,true))->get("",true);
+    $errors = \implode("\r\n",$errors);
+    throw new \Exception($errors, 1);
   }
   function email_mask ( string $email, string $mask_char="*", int $percent=50 ){
     list( $user, $domain ) = \preg_split("/@/", $email );
@@ -92,6 +157,22 @@ namespace TymFrontiers\Helper {
     $set .=   "data-stick-on='{$dnav_stick_on}' ";
     $set .= ">";
     echo $set;
+  }
+  function file_size_unit($bytes) {
+    if ($bytes >= 1073741824) {
+      $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+      $bytes = number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+      $bytes = number_format($bytes / 1024, 2) . ' KB';
+    } elseif ($bytes > 1) {
+      $bytes = $bytes . ' bytes';
+    } elseif ($bytes == 1) {
+      $bytes = $bytes . ' byte';
+    } else {
+      $bytes = '0 bytes';
+    }
+    return $bytes;
   }
 }
 
