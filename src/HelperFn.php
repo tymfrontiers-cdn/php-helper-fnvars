@@ -32,7 +32,7 @@ namespace TymFrontiers\Helper {
 
     global $database;
     $found = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))
-      ->findBySql("SELECT sval FROM :db:.:tbl: WHERE user='{$database->escapeValue($user)}' AND skey='{$database->escapeValue($key)}' LIMIT 1");
+      ->findBySql("SELECT sval FROM :db:.:tbl: WHERE user='{$user}' AND skey='{$database->escapeValue($key)}' LIMIT 1");
     return $found ? $found[0]->sval : null;
   }
   function setting_set_value (string $user, string $key, $value, string $domain = PRJ_DOMAIN) {
@@ -98,6 +98,17 @@ namespace TymFrontiers\Helper {
     $errors = \implode("\r\n",$errors);
     throw new \Exception($errors, 1);
   }
+
+  function destroy_cookie (string $cname) {
+    global $_COOKIE;
+    if (isset($_COOKIE[$cname])) {
+      unset($_COOKIE[$cname]);
+      \setcookie($cname, null, -1, '/');
+      return true;
+    }
+    return false;
+  }
+
   function email_mask ( string $email, string $mask_char="*", int $percent=50 ){
     list( $user, $domain ) = \preg_split("/@/", $email );
     $len = \strlen( $user );
