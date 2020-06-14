@@ -1,5 +1,7 @@
 <?php
 namespace TymFrontiers\Helper {
+  use \TymFrontiers\MultiForm,
+      \TymFrontiers\InstanceError;
   require_once "HelperVars.php";
   // Admin settings conf
   function setting_variant (string $regex){
@@ -98,7 +100,68 @@ namespace TymFrontiers\Helper {
     $errors = \implode("\r\n",$errors);
     throw new \Exception($errors, 1);
   }
-
+  function setting_set_file_default(string $user, string $set_key, int $file_id, bool $set_multiple = false) {
+    global $database;
+    $user = $database->escapeValue($user);
+    $set_key = $database->escapeValue($set_key);
+    if ((new MultiForm(MYSQL_FILE_DB, "file_default","id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `user`='{$user}' AND `set_key` = '{$set_key}' AND `file_id` = {$file_id} LIMIT 1")) {
+      // already set
+      return true;
+    }
+    if (!$set_multiple) { // delete if previously set
+      $file_db = MYSQL_FILE_DB;
+      $database->query("DELETE FROM `{$file_db}`.file_default WHERE `user`='{$user}' AND `set_key`='{$set_key}'");
+    }
+    $set = new MultiForm(MYSQL_FILE_DB, "file_default", "id");
+    $set->user = $user;
+    $set->set_key = $set_key;
+    $set->file_id = $file_id;
+    if (!$set->save()) {
+      $set->mergeErrors();
+      $errors = [];
+      $more_err = (new InstanceError($set))->get("",true);
+      if (!empty($more_err)) {
+        foreach ($more_err as $method=>$errs) {
+          foreach ($errs as $err){
+            $errors[] = $err;
+          }
+        }
+      }
+      throw new \Exception("Failed to save file-default setting. [Error]: \r\n" . \implode("\r\n",$errors), 1);
+    }
+    return true;
+  }
+  function setting_get_file_default(string $user, string $set_key) {
+    global $database;
+    $file_db = MYSQL_FILE_DB;
+    $file_tbl = MYSQL_FILE_TBL;
+    $whost = WHOST;
+    $user = $database->escapeValue($user);
+    $set_key = $database->escapeValue($set_key);
+    $query = "SELECT fd.id, fd.user, fd.set_key,
+                     fi.id AS file_id, fi.type_group AS file_type, fi._type AS file_mime, fi.caption AS file_caption, fi._size AS file_size,
+                     CONCAT('{$whost}/file/', fi._name) AS url
+              FROM :db:.:tbl: AS fd
+              LEFT JOIN `{$file_db}`.`{$file_tbl}` AS fi ON fi.id = fd.file_id
+              WHERE fd.user = '{$user}'
+              AND fd.set_key = '{$set_key}'";
+    return (new MultiForm(MYSQL_FILE_DB, "file_default", "id"))->findBySql($query);
+  }
+  function setting_check_file_default(int $file_id) {
+    global $database;
+    if ($set = (new MultiForm(MYSQL_FILE_DB, "file_default", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `file_id` = {$file_id}")) {
+      $set_r = [];
+      foreach ($set as $st) {
+        $set_r[] = [
+          "id" => $st->id,
+          "user" => $st->user,
+          "key" => $st->set_key,
+        ];
+      }
+      return $set_r;
+    }
+    return [];
+  }
   function destroy_cookie (string $cname) {
     global $_COOKIE;
     if (isset($_COOKIE[$cname])) {
