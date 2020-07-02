@@ -218,10 +218,10 @@ namespace TymFrontiers\Helper {
     $set = "<input ";
     $set .=   "type='hidden' ";
     $set .=   "id='setup-page' ";
-    $set .=   "data-show-nav = {$show_dnav} ";
+    $set .=   ("data-show-nav = '" . ($show_dnav ? 1 : 0) ."' ");
     $set .=   "data-group = '{$page_group}' ";
     $set .=   "data-name = '{$page_name}' ";
-    $set .= ">";
+    $set .= "> ";
     $set .= "<input ";
     $set .=   "type='hidden' ";
     $set .=   "id='setup-dnav' ";
