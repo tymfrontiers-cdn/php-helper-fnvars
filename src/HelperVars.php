@@ -1,4 +1,5 @@
 <?php
+use \TymFrontiers\File;
 // Helper viariables
 $access_ranks = [
   "GUEST"       => 0,
@@ -12,21 +13,11 @@ $access_ranks = [
   "SUPERADMIN"  => 8,
   "OWNER"       => 14
 ];
-$reverse_access_ranks = [
-  0 => "GUEST",
-  1 => "USER",
-  2 => "ANALYST",
-  3 => "ADVERTISER",
-  4 => "MODERATOR",
-  5 => "EDITOR",
-  6 => "ADMIN",
-  7 => "DEVELOPER",
-  8 => "SUPERADMIN",
-  14 => "OWNER"
-];
+$reverse_access_ranks = \array_flip($access_ranks);
 $email_replace_pattern = [
   "name" => "%name%",
   "surname" => "%surname%",
+  "userid" => "%userid%",
   "email" => "%email%",
   "phone" => "%phone%",
   "country" => "%country%",
@@ -35,24 +26,13 @@ $email_replace_pattern = [
   "address" => "%address%",
   "zip_code" => "%zip_code%",
 ];
-$file_upload_groups = [
-  "image" => [
-    'png' => 'image/png',
-    'jpg' => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'jpe' => 'image/jpeg',
-    'gif' => 'image/gif'
-  ],
-  "document" => [
-    'pdf' => 'application/pdf',
-    'doc' => 'application/msword',
-    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'rtf' => 'application/rtf',
-    'xls' => 'application/vnd.ms-excel',
-    'xlsx'=> 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'ppt' => 'application/vnd.ms-powerpoint',
-    'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'odt' => 'application/vnd.oasis.opendocument.text',
-    'ods' => 'application/vnd.oasis.opendocument.spreadsheet'
-  ]
-];
+$file_upload_groups = [];
+foreach ((new File)->types as $file_group => $file_types) {
+  $file_upload_groups[$file_group] = $file_types;
+  // foreach (\array_unique(\array_keys($file_types)) as $ext) {
+  //   $file_upload_groups[$file_group][] = ".{$ext}";
+  // }
+  // foreach (\array_unique(\array_values($file_types)) as $mim) {
+  //   $file_upload_groups[$file_group][] = $mim;
+  // }
+}
