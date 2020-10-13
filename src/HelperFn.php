@@ -1,7 +1,8 @@
 <?php
 namespace TymFrontiers\Helper {
   use \TymFrontiers\MultiForm,
-      \TymFrontiers\InstanceError;
+      \TymFrontiers\InstanceError,
+      \TymFrontiers\MySQLDatabase;
   require_once "HelperVars.php";
   // Admin settings conf
   function setting_variant (string $regex){
@@ -128,6 +129,22 @@ namespace TymFrontiers\Helper {
         }
       }
       throw new \Exception("Failed to save file-default setting. [Error]: \r\n" . \implode("\r\n",$errors), 1);
+    }
+    return true;
+  }
+  function setting_unset_file_default (int $fid) {
+    if (
+        !\defined("MYSQL_FILE_DB")
+        || !\defined("MYSQL_DEVELOPER_USERNAME")
+        || !\defined("MYSQL_DEVELOPER_PASS")
+        || !\defined("MYSQL_SERVER")
+    ) {
+      throw new \Exception("On/More required constants not defined >> [MYSQL_SERVER, MYSQL_FILE_DB, MYSQL_DEVELOPER_USERNAME, MYSQL_DEVELOPER_PASS]", 1);
+    }
+    $conn = new MySQLDatabase(MYSQL_SERVER, MYSQL_DEVELOPER_USERNAME, MYSQL_DEVELOPER_PASS);
+    $fidb = MYSQL_FILE_DB;
+    if ((new MultiForm(MYSQL_FILE_DB, "file_default", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `file_id` = {$fid} LIMIT 1") && !$conn->query("DELETE FROM `{$fidb}`.`file_default` WHERE `file_id` = {$fid}")) {
+      throw new \Exception("Failed to delete default settings", 1);
     }
     return true;
   }
