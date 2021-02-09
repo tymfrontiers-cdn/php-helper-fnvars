@@ -266,6 +266,16 @@ namespace TymFrontiers\Helper {
     return $bytes;
   }
 }
+function require_login (bool $redirect = true, string $rd_path = "/app/user/login") {
+  global $session;
+  if (!$session->isLoggedIn() ) {
+    if ($redirect) {
+      \TymFrontiers\HTTP\Header::redirect(\TymFrontiers\Generic::setGet($rd_path,['rdt'=>THIS_PAGE]));
+    } else {
+      \TymFrontiers\HTTP\Header::unauthorized(false,'',["Message"=>"Login is required for requested resource!"]);
+    }
+  }
+}
 
 // apache_request_headers
 namespace {
