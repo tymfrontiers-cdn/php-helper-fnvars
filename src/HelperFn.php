@@ -109,26 +109,26 @@ namespace TymFrontiers\Helper {
       // already set
       return true;
     }
-    if (!$set_multiple) { // delete if previously set
+    if($exists = (new MultiForm(MYSQL_FILE_DB, "file_default", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `user`='{$user}' AND `set_key`='{$set_key}'")) {
+      // $exists = $exists[0];
+    }
+    if (!$set_multiple && \count($exists) > 1) { // delete if previously set
       $file_db = MYSQL_FILE_DB;
       $database->query("DELETE FROM `{$file_db}`.file_default WHERE `user`='{$user}' AND `set_key`='{$set_key}'");
+      // create new one
+      $exists = false;
     }
-    $set = new MultiForm(MYSQL_FILE_DB, "file_default", "id");
-    $set->user = $user;
-    $set->set_key = $set_key;
-    $set->file_id = $file_id;
-    if (!$set->save()) {
-      $set->mergeErrors();
-      $errors = [];
-      $more_err = (new InstanceError($set))->get("",true);
-      if (!empty($more_err)) {
-        foreach ($more_err as $method=>$errs) {
-          foreach ($errs as $err){
-            $errors[] = $err;
-          }
-        }
+    $file_db = MYSQL_FILE_DB;
+    if ($exists) {
+      // run update
+      if (!$database->query("UPDATE `{$file_db}`.`file_default` SET `file_id` = $file_id WHERE `user` = '{$user}' AND `set_key`='{$set_key}' LIMIT 1")) {
+        throw new \Exception("Failed to update file-default setting.", 1);
       }
-      throw new \Exception("Failed to save file-default setting. [Error]: \r\n" . \implode("\r\n",$errors), 1);
+    } else {
+      // create new record
+      if (!$database->query("INSERT INTO `{$file_db}`.`file_default` (`user`, `set_key`, `file_id`) VALUES ('{$user}', '{$set_key}', {$file_id})")) {
+        throw new \Exception("Failed to create file-default setting.", 1);
+      }
     }
     return true;
   }
