@@ -234,14 +234,14 @@ namespace TymFrontiers\Helper {
   function setup_page(string $page_name, string $page_group = "base", bool $show_dnav = true, int $dnav_ini_top_pos=0, string $dnav_stick_on='#page-head',string $dnav_clear_elem = '#main-content', string $dnav_pos = "affix"){
     $set = "<input ";
     $set .=   "type='hidden' ";
-    $set .=   "id='setup-page' ";
+    $set .=   "data-setup='page' ";
     $set .=   ("data-show-nav = '" . ($show_dnav ? 1 : 0) ."' ");
     $set .=   "data-group = '{$page_group}' ";
     $set .=   "data-name = '{$page_name}' ";
     $set .= "> ";
     $set .= "<input ";
     $set .=   "type='hidden' ";
-    $set .=   "id='setup-dnav' ";
+    $set .=   "data-setup='dnav' ";
     $set .=   "data-clear-elem='{$dnav_clear_elem}' ";
     $set .=   "data-ini-top-pos={$dnav_ini_top_pos} ";
     $set .=   "data-pos='{$dnav_pos}' ";
