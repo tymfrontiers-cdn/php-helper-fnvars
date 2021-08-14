@@ -30,7 +30,7 @@ namespace TymFrontiers\Helper {
   }
   function setting_get_value (string $user, string $key, string $domain = PRJ_DOMAIN) {
     global $database;
-    $user = $database->escapeValue("{$domain}\\{$user}");
+    $user = $database->escapeValue("{$domain}.{$user}");
     if (!\defined("MYSQL_BASE_DB")) throw new \Exception("Database for settings [MYSQL_BASE_DB] not defined.", 1);
 
     global $database;
@@ -51,7 +51,7 @@ namespace TymFrontiers\Helper {
     if (!$key_prop) throw new \Exception("Setting property not found \r\n" . $database->last_query, 1);
     $key_prop = $key_prop[0];
     $is_new = true;
-    $find_user = "{$domain}\\\\{$user}";
+    $find_user = "{$domain}.{$user}";
     if (!(bool)$key_prop->multi_val && $set = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `user` = '{$find_user}' AND skey='{$key}' LIMIT 1")) {
       $set = $set[0];
       $is_new = false;
@@ -89,7 +89,7 @@ namespace TymFrontiers\Helper {
       // run update
       $set->sval = $value;
     } else {
-      $set->user = "{$domain}\\{$user}";
+      $set->user = "{$domain}.{$user}";
       $set->skey = $key;
       $set->sval = $value;
     }
