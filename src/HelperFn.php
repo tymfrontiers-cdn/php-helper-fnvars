@@ -231,7 +231,7 @@ namespace TymFrontiers\Helper {
     $out_errors["Status"] = "1" . (\count($out_errors) - 1);
     return $out_errors;
   }
-  function setup_page(string $page_name, string $page_group = "base", bool $show_dnav = true, int $dnav_ini_top_pos=0, string $dnav_stick_on='#page-head',string $dnav_clear_elem = '#main-content', string $dnav_pos = "affix"){
+  function setup_page(string $page_name, string $page_group = "base", bool $show_dnav = true, int $dnav_ini_top_pos=0, string $dnav_stick_on='#page-head', bool $cartbot = false, string $cartbotCb = "", string $dnav_clear_elem = '#main-content', string $dnav_pos = "affix"){
     $set = "<input ";
     $set .=   "type='hidden' ";
     $set .=   "data-setup='page' ";
@@ -245,6 +245,8 @@ namespace TymFrontiers\Helper {
     $set .=   "data-clear-elem='{$dnav_clear_elem}' ";
     $set .=   "data-ini-top-pos={$dnav_ini_top_pos} ";
     $set .=   "data-pos='{$dnav_pos}' ";
+    $set .=   "data-cart-bot='{$cartbot}' ";
+    $set .=   "data-cart-bot-click='{$cartbotCb}' ";
     $set .=   "data-stick-on='{$dnav_stick_on}' ";
     $set .= ">";
     echo $set;
