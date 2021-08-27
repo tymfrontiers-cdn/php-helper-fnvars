@@ -245,7 +245,7 @@ namespace TymFrontiers\Helper {
     $set .=   "data-clear-elem='{$dnav_clear_elem}' ";
     $set .=   "data-ini-top-pos={$dnav_ini_top_pos} ";
     $set .=   "data-pos='{$dnav_pos}' ";
-    $set .=   "data-cart-bot='{$cartbot}' ";
+    $set .=   "data-cart-bot='". ($cartbot ? 1 : 0)."' ";
     $set .=   "data-cart-bot-click='{$cartbotCb}' ";
     $set .=   "data-stick-on='{$dnav_stick_on}' ";
     $set .= ">";
