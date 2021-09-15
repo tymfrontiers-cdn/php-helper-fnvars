@@ -10,6 +10,8 @@ namespace TymFrontiers\Helper {
       "optiontype" => "", // "radio", "checkbox"
       "minval" => 0,
       "maxval" => 0,
+      "minlen" => 0,
+      "maxlen" => 0,
       "options" => [],
     ];
     $regex = \explode("-;", $regex);
