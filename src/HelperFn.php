@@ -36,7 +36,7 @@ namespace TymFrontiers\Helper {
     if (!\defined("MYSQL_BASE_DB")) throw new \Exception("Database for settings [MYSQL_BASE_DB] not defined.", 1);
 
     global $database;
-    $found = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))
+    $found = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "settings", "id"))
       ->findBySql("SELECT sval FROM :db:.:tbl: WHERE user='{$user}' AND skey='{$database->escapeValue($key)}' LIMIT 1");
     return $found ? $found[0]->sval : null;
   }
@@ -44,21 +44,21 @@ namespace TymFrontiers\Helper {
     global $database;
     $key = $database->escapeValue($key);
     if (!\defined("MYSQL_BASE_DB")) throw new \Exception("Database for settings [MYSQL_BASE_DB] not defined.", 1);
-    $key_prop = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting_option", "id"))
+    $key_prop = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting_options", "id"))
       ->findBySql("SELECT *
                    FROM :db:.:tbl:
                    WHERE `domain` = '{$database->escapeValue($domain)}'
                    AND `name` = '{$key}'
                    LIMIT 1");
-    if (!$key_prop) throw new \Exception("Setting property not found \r\n" . $database->last_query, 1);
+    if (!$key_prop) throw new \Exception("Setting property not found \r\n", 1);
     $key_prop = $key_prop[0];
     $is_new = true;
     $find_user = "{$domain}.{$user}";
-    if (!(bool)$key_prop->multi_val && $set = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `user` = '{$find_user}' AND skey='{$key}' LIMIT 1")) {
+    if (!(bool)$key_prop->multi_val && $set = (new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "settings", "id"))->findBySql("SELECT * FROM :db:.:tbl: WHERE `user` = '{$find_user}' AND skey='{$key}' LIMIT 1")) {
       $set = $set[0];
       $is_new = false;
     } else {
-      $set = new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "setting", "id");
+      $set = new \TymFrontiers\MultiForm(MYSQL_BASE_DB, "settings", "id");
     }
     // validate [value] presented
     // get expexted value
