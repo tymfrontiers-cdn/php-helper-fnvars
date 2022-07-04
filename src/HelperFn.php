@@ -5,7 +5,7 @@ namespace TymFrontiers\Helper {
       \TymFrontiers\MySQLDatabase;
   require_once "HelperVars.php";
   // Admin settings conf
-  function setting_variant (string $regex){
+  function setting_variant (string $pattern){
     $output = [
       "optiontype" => "", // "radio", "checkbox"
       "minval" => 0,
@@ -13,20 +13,26 @@ namespace TymFrontiers\Helper {
       "minlen" => 0,
       "maxlen" => 0,
       "options" => [],
+      "pattern" => ""
     ];
-    $regex = \explode("-;", $regex);
-    if (empty($regex)) return false;
-    foreach ($regex as $var) {
-      $key_val = \explode("-:", $var);
-      if (\count($key_val) !== 2) return false;
-      list($key, $val) = $key_val;
-      if ($key == 'options') {
-        foreach (\explode("-,",$val) as $opt) {
-          $output["options"][] = $opt;
+    $regex = \explode("-;", $pattern);
+    if ( @ \preg_match($pattern, "") !== false ) {
+      $output['pattern'] = $pattern;
+    } else if (!empty($regex)) {
+      foreach ($regex as $var) {
+        $key_val = \explode("-:", $var);
+        if (\count($key_val) !== 2) return false;
+        list($key, $val) = $key_val;
+        if ($key == 'options') {
+          foreach (\explode("-,",$val) as $opt) {
+            $output["options"][] = $opt;
+          }
+        } else {
+          if (\array_key_exists($key, $output)) $output[$key] = $val;
         }
-      } else {
-        if (\array_key_exists($key, $output)) $output[$key] = $val;
       }
+    } else {
+      return false;
     }
     return $output;
   }
@@ -65,7 +71,12 @@ namespace TymFrontiers\Helper {
     $rqp = [];
     $typev = empty($key_prop->type_variant) ? false : \TymFrontiers\Helper\setting_variant($key_prop->type_variant);
     $filt_arr = ["value", $key_prop->type];
-    if (\in_array($key_prop->type, ["username","text","html","markdown","mixed","script","date","time","datetime","int","float"])) {
+    if ($key_prop->type == "pattern") {
+      if (empty($typev["pattern"])) {
+        throw new \Exception("No pre-set [pattern], contact Developer", 1);
+      }
+      $filt_arr[2] = $typev["pattern"];
+    } else if (\in_array($key_prop->type, ["username","text","html","markdown","mixed","script","date","time","datetime","int","float"])) {
       $filt_arr[2] = !empty($typev["minval"]) ? $typev["minval"] : 0;
       $filt_arr[3] = !empty($typev["maxval"]) ? $typev["maxval"] : 0;
     } if ($key_prop->type == "option" && !empty($typev["optiontype"]) && $typev["optiontype"]=="checkbox") {
