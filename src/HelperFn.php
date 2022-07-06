@@ -196,7 +196,7 @@ namespace TymFrontiers\Helper {
     global $_COOKIE;
     if (isset($_COOKIE[$cname])) {
       unset($_COOKIE[$cname]);
-      \setcookie($cname, null, -1, '/');
+      \setcookie($cname, 0, -1, '/');
       return true;
     }
     return false;
